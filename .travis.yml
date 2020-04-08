@@ -21,6 +21,7 @@ script:
   - cd build
   - cmake -DLINUX_AUDIO_BACKEND:STRING="Pulseaudio" ..
   - make
+  - cd ..
   # get appimage tools
   - wget -c -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
   - chmod a+x linuxdeploy-x86_64.AppImage
