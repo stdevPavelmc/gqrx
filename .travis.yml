@@ -22,12 +22,11 @@ script:
   - cmake -DLINUX_AUDIO_BACKEND:STRING="Pulseaudio" ..
   - make
   # get appimage tools
-  - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+  - wget -c -nv "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+  - chmod a+x linuxdeploy-x86_64.AppImage
   # appimage creation
-  - VERSION=`git describe --abbrev=8` && export VERSION
-  - mkdir AppDir
-  - ./linuxdeployqt-continuous-x86_64.AppImage -d gqrx.desktop -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
+  - VERSION=`git describe --abbrev=8` && export VERSION && echo "Version = $VERSION"
+  - ./linuxdeploy-x86_64.AppImage -d gqrx.desktop -e build/gqrx -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
   # check list
   - ls -lh
 
