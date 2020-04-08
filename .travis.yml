@@ -36,8 +36,7 @@ script:
 
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash upload.sh *.AppImage
-  - curl --upload-file ./Gqrx*.AppImage https://transfer.sh/Gqrx-$VERSION-x86_64.AppImage
+  - bash upload.sh Gqrx-*.AppImage
 
 
 branches:
