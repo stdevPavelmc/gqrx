@@ -2,14 +2,16 @@ sudo: required
 dist: trusty
 language: cpp
 
+
 compiler:
   - gcc
   - clang
 
+
 env:
   - AUDIO_BACKEND="Pulseaudio"
-  #- AUDIO_BACKEND="Portaudio"
-  #- AUDIO_BACKEND="Gr-audio"
+  - VERSION=`git describe --abbrev=8`
+
 
 before_install:
   - sudo add-apt-repository -y ppa:bladerf/bladerf
@@ -19,8 +21,29 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus
 
+
 script:
   - mkdir build
   - cd build
   - cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..
   - make
+  # get appimage tools
+  - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+  # cleaning
+  - find ./ -type f \( -name "moc_*" -or -name "*.o" -or -name "qrc_*" -or -name "Makefile*" -or -name "*.a" \) -exec rm {} \; -print
+  # appimage creation
+  - ./linuxdeployqt-continuous-x86_64.AppImage -e build/gqrx -d gqrx.desktop -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
+  # check list
+  - ls -lh
+
+
+after_success:
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - bash upload.sh *.AppImage
+
+
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous.*)$/
