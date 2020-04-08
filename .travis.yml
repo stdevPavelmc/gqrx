@@ -5,12 +5,6 @@ language: cpp
 
 compiler:
   - gcc
-  - clang
-
-
-env:
-  - AUDIO_BACKEND="Pulseaudio"
-  - VERSION=`git describe --abbrev=8`
 
 
 before_install:
@@ -25,7 +19,7 @@ before_install:
 script:
   - mkdir build
   - cd build
-  - cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..
+  - cmake -DLINUX_AUDIO_BACKEND:STRING="Pulseaudio" ..
   - make
   # get appimage tools
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
@@ -33,6 +27,7 @@ script:
   # cleaning
   - find ./ -type f \( -name "moc_*" -or -name "*.o" -or -name "qrc_*" -or -name "Makefile*" -or -name "*.a" \) -exec rm {} \; -print
   # appimage creation
+  - VERSION=`git describe --abbrev=8` && export VERSION
   - ./linuxdeployqt-continuous-x86_64.AppImage -e build/gqrx -d gqrx.desktop -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
   # check list
   - ls -lh
