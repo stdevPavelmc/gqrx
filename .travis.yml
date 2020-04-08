@@ -24,11 +24,10 @@ script:
   # get appimage tools
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-  # cleaning
-  - find ./ -type f \( -name "moc_*" -or -name "*.o" -or -name "qrc_*" -or -name "Makefile*" -or -name "*.a" \) -exec rm {} \; -print
   # appimage creation
   - VERSION=`git describe --abbrev=8` && export VERSION
-  - ./linuxdeployqt-continuous-x86_64.AppImage -e build/gqrx -d gqrx.desktop -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
+  - mkdir AppDir
+  - ./linuxdeployqt-continuous-x86_64.AppImage -d gqrx.desktop -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
   # check list
   - ls -lh
 
@@ -36,6 +35,7 @@ script:
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - bash upload.sh *.AppImage
+  - curl --upload-file ./Gqrx*.AppImage https://transfer.sh/Gqrx-$VERSION-x86_64.AppImage
 
 
 branches:
