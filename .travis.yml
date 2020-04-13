@@ -41,7 +41,8 @@ after_success:
   # only on non tagged builds, aka continous builds
   # see https://github.com/probonopd/uploadtool#usage for instructions on steps to do with travis & github for this to work
   if [ -z "$TRAVIS_TAG" ] ; then
-    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh && bash upload.sh Gqrx-*.AppImage
+    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+    bash upload.sh Gqrx-*.AppImage
   fi
 
 # deploy to Github
