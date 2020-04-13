@@ -30,28 +30,24 @@ script:
   - wget -c -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
   - wget -c -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
   - chmod a+x *.AppImage
+  # Set the VERSION var to the more logical choice: tag version if tagged build, git version + commit id if no tag
+  - if [ -z "$TRAVIS_TAG" ] ; then export VERSION=`git describe --abbrev=8`; else export VERSION="$TRAVIS_TAG"; fi
   # appimage creation
-  - export VERSION=`git describe --abbrev=8`
-  - echo "Version = $VERSION"
   - ./linuxdeploy-x86_64.AppImage -d gqrx.desktop -e build/src/gqrx -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
   # check list
   - ls -lh
 
 after_success:
-  on
-    tags: false
+  # only on non tagged builds, aka continous builds
   # see https://github.com/probonopd/uploadtool#usage for instructions on steps to do with travis & github for this to work
-  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash upload.sh Gqrx-*.AppImage
-
-# Prepare to upload a tagged build
-before_deploy:
-  - export VERSION=`git describe --tags --exact-match HEAD 2> /dev/null`
-  - mv Gqrx-*.AppImage Gqrx-$VERSION.AppImage
+  if [ -z "$TRAVIS_TAG" ] ; then
+    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh && bash upload.sh Gqrx-*.AppImage
+  fi
 
 # deploy to Github
 deploy:
   # deploy on linux
+  # see https://github.com/probonopd/uploadtool#usage for instructions on steps to do with travis & github for this to work
   - provider: releases
     api_key: $GITHUB_TOKEN
     file_glob: true
