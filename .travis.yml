@@ -2,10 +2,14 @@ sudo: required
 dist: trusty
 language: cpp
 
-
 compiler:
   - gcc
+  - clang
 
+env:
+  - AUDIO_BACKEND="Pulseaudio"
+  - AUDIO_BACKEND="Portaudio"
+  - AUDIO_BACKEND="Gr-audio"
 
 before_install:
   - sudo add-apt-repository -y ppa:bladerf/bladerf
@@ -15,11 +19,10 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus
 
-
 script:
   - mkdir build
   - cd build
-  - cmake -DLINUX_AUDIO_BACKEND:STRING="Pulseaudio" ..
+  - cmake -DLINUX_AUDIO_BACKEND:STRING="$AUDIO_BACKEND" ..
   - make
   - cd ..
   # get appimage tools
@@ -28,18 +31,34 @@ script:
   - wget -c -nv "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
   - chmod a+x *.AppImage
   # appimage creation
-  - VERSION=`git describe --abbrev=8` && export VERSION && echo "Version = $VERSION"
+  - export VERSION=`git describe --abbrev=8`
+  - echo "Version = $VERSION"
   - ./linuxdeploy-x86_64.AppImage -d gqrx.desktop -e build/src/gqrx -i ./resources/icons/gqrx.svg -p qt --output appimage --appdir=./AppDir
   # check list
   - ls -lh
 
-
 after_success:
+  on
+    tags: false
+  # see https://github.com/probonopd/uploadtool#usage for instructions on steps to do with travis & github for this to work
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - bash upload.sh Gqrx-*.AppImage
 
+# Prepare to upload a tagged build
+before_deploy:
+  - export VERSION=`git describe --tags --exact-match HEAD 2> /dev/null`
+  - mv Gqrx-*.AppImage Gqrx-$VERSION.AppImage
 
-branches:
-  except:
-    - # Do not build tags that we create when we upload to GitHub Releases
-    - /^(?i:continuous.*)$/
+# deploy to Github
+deploy:
+  # deploy on linux
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    draft: true
+    overwrite: true
+    skip_cleanup: true
+    on:
+      tags: true
+    file:
+      - "Gqrx-*.AppImage"
