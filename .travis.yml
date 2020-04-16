@@ -10,8 +10,8 @@ compiler:
 
 env:
   - AUDIO_BACKEND="Pulseaudio"
-  - AUDIO_BACKEND="Portaudio"
-  - AUDIO_BACKEND="Gr-audio"
+  # - AUDIO_BACKEND="Portaudio"
+  # - AUDIO_BACKEND="Gr-audio"
 
 before_install:
   - sudo add-apt-repository -y ppa:bladerf/bladerf
@@ -26,3 +26,6 @@ script:
   - cd build
   - cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..
   - make
+  - export VERSION="2.12.1"
+  - ./appimage.sh -u
+
