@@ -27,5 +27,6 @@ script:
   - cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..
   - make
   - export VERSION="2.12.1"
-  - ./appimage.sh -u
+  - cd ../
+  - bash appimage.sh -u
 
